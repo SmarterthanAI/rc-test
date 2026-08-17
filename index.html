@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RC Test Platform — Reading Comprehension Assessment System</title>
+  <meta name="description" content="Professional aptitude reading comprehension testing platform powered by authentic GMAT / GRE RC passages, progress saving, and detailed solution explanations." />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- Global App Header -->
+  <header id="main-header" class="site-header">
+    <div class="header-container">
+      <div class="header-left">
+        <a href="#" id="nav-brand-logo" class="brand-logo" aria-label="Home">
+          <div class="brand-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+              <path d="M8 7h8M8 11h6"></path>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <span class="brand-name">RC<strong>Prep</strong></span>
+            <span class="brand-badge">RC-99 Edition</span>
+          </div>
+        </a>
+      </div>
+
+      <nav id="user-navigation" class="header-nav hidden">
+        <ul class="nav-links">
+          <li>
+            <a href="#" id="nav-dashboard-link" class="nav-link active">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect></svg>
+              Dashboard
+            </a>
+          </li>
+          <li>
+            <a href="#" id="nav-progress-link" class="nav-link">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"></path></svg>
+              My Progress
+            </a>
+          </li>
+          <li>
+            <a href="#" id="nav-admin-link" class="nav-link hidden">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+              Admin CMS
+            </a>
+          </li>
+        </ul>
+
+        <div class="user-profile-menu">
+          <div class="user-pill">
+            <div id="header-user-avatar" class="user-avatar">US</div>
+            <span id="header-user-name" class="user-name">User</span>
+          </div>
+          <button type="button" id="btn-logout" class="btn btn-ghost btn-sm" title="Log Out">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+            Sign Out
+          </button>
+        </div>
+      </nav>
+
+      <div id="auth-navigation" class="header-auth-nav">
+        <span class="auth-tagline">Official Reading Comprehension Assessment</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- MAIN VIEWPORT CONTAINER -->
+  <main id="app-main" class="app-main">
+
+    <!-- ==================== 1. AUTH VIEW ==================== -->
+    <section id="view-auth" class="view-section">
+      <div class="auth-wrapper">
+        <div class="auth-hero-banner">
+          <div class="auth-hero-badge">Aptitude & RC Test Simulator</div>
+          <h1 class="auth-hero-title">Master Reading Comprehension with Precision</h1>
+          <p class="auth-hero-desc">Take authentic aptitude assessment tests, track continuous progress, receive instant scoring analytics, and study exhaustive passage & option explanations strictly grounded in the official guide.</p>
+          
+          <div class="auth-features-list">
+            <div class="feature-item">
+              <div class="feature-icon">✓</div>
+              <span><strong>RC-19 Spotlight:</strong> Extracted verbatim from the official guide with zero hallucinations.</span>
+            </div>
+            <div class="feature-item">
+              <div class="feature-icon">✓</div>
+              <span><strong>Stateful Session Continuity:</strong> Never lose answers between questions or after logout.</span>
+            </div>
+            <div class="feature-item">
+              <div class="feature-icon">✓</div>
+              <span><strong>Option-by-Option Breakdown:</strong> Understand exactly why correct choices work and wrong choices fail.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="auth-card-container">
+          <div class="auth-card">
+            <!-- Tabs -->
+            <div class="auth-tabs" role="tablist">
+              <button type="button" id="auth-tab-login" class="auth-tab active" role="tab">Sign In</button>
+              <button type="button" id="auth-tab-signup" class="auth-tab" role="tab">Create Account</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="auth-form">
+              <div id="login-error" class="alert-error hidden" role="alert"></div>
+
+              <div class="form-group">
+                <label for="login-email">Email Address</label>
+                <input type="email" id="login-email" class="form-input" placeholder="name@example.com" required autocomplete="email" />
+              </div>
+
+              <div class="form-group">
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" class="form-input" placeholder="••••••••" required autocomplete="current-password" />
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-block btn-lg">
+                Sign In to Dashboard
+              </button>
+            </form>
+
+            <div class="auth-divider">
+              <span>or quick test with demo</span>
+            </div>
+
+            <div class="demo-buttons-group">
+              <button type="button" id="btn-demo-student" class="btn btn-secondary btn-sm" onclick="if(window.loginAsStudentDemo) window.loginAsStudentDemo();">
+                Student Demo (Alex)
+              </button>
+              <button type="button" id="btn-demo-admin" class="btn btn-secondary btn-sm" onclick="if(window.loginAsAdminDemo) window.loginAsAdminDemo();">
+                Admin Demo
+              </button>
+            </div>
+
+            <button type="button" id="btn-guest-login" class="btn btn-ghost btn-block btn-sm" onclick="if(window.loginAsGuest) window.loginAsGuest();">
+              Continue as Guest Explorer →
+            </button>
+
+            <!-- Signup Form -->
+            <form id="signup-form" class="auth-form hidden">
+              <div id="signup-error" class="alert-error hidden" role="alert"></div>
+
+              <div class="form-group">
+                <label for="signup-name">Full Name</label>
+                <input type="text" id="signup-name" class="form-input" placeholder="Jane Doe" required autocomplete="name" />
+              </div>
+
+              <div class="form-group">
+                <label for="signup-email">Email Address</label>
+                <input type="email" id="signup-email" class="form-input" placeholder="jane@example.com" required autocomplete="email" />
+              </div>
+
+              <div class="form-group">
+                <label for="signup-password">Create Password</label>
+                <input type="password" id="signup-password" class="form-input" placeholder="Min. 6 characters" required autocomplete="new-password" />
+              </div>
+
+              <div class="form-group">
+                <label for="signup-confirm">Confirm Password</label>
+                <input type="password" id="signup-confirm" class="form-input" placeholder="Repeat password" required autocomplete="new-password" />
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-block btn-lg">
+                Create Free Account
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 2. DASHBOARD VIEW ==================== -->
+    <section id="view-dashboard" class="view-section hidden">
+      <div class="dashboard-wrapper">
+        <!-- Welcome Hero -->
+        <div class="dash-hero">
+          <div class="dash-hero-text">
+            <h2 class="dash-greeting">Welcome back, <span id="dash-user-name">Scholar</span> 👋</h2>
+            <p class="dash-subtitle">Access all 99 Reading Comprehension assessments with 8-minute Timed or Untimed practice modes.</p>
+          </div>
+        </div>
+
+        <!-- Metric Highlights Banner -->
+        <div class="stats-overview-grid">
+          <div class="stat-card">
+            <div class="stat-icon-wrapper icon-blue">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+            </div>
+            <div class="stat-content">
+              <span class="stat-label">Tests Completed</span>
+              <div id="dash-stat-attempts" class="stat-value">0 / 99</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon-wrapper icon-green">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-6"></path></svg>
+            </div>
+            <div class="stat-content">
+              <span class="stat-label">Average Score</span>
+              <div id="dash-stat-avg-score" class="stat-value">0%</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon-wrapper icon-purple">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
+            </div>
+            <div class="stat-content">
+              <span class="stat-label">Accuracy Rate</span>
+              <div id="dash-stat-avg-accuracy" class="stat-value">0%</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon-wrapper icon-amber">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </div>
+            <div class="stat-content">
+              <span class="stat-label">Total Time Spent</span>
+              <div id="dash-stat-time" class="stat-value">0m</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== ALL 99 RC TESTS CATALOG ==================== -->
+        <div class="catalog-section">
+          <!-- Filter and Search Toolbar -->
+          <div class="catalog-controls-bar">
+            <div class="search-box">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" id="catalog-search-input" class="search-input" placeholder="Search by number or topic (e.g. RC-19, Dinosaur, Philosophy)..." />
+            </div>
+
+            <div class="filter-controls-group">
+              <!-- Difficulty Tabs -->
+              <div class="difficulty-tabs-pill" role="tablist">
+                <button type="button" class="diff-filter-tab active" data-diff="all">All (99)</button>
+                <button type="button" class="diff-filter-tab" data-diff="Low">Low (1–33)</button>
+                <button type="button" class="diff-filter-tab" data-diff="Medium">Medium (34–66)</button>
+                <button type="button" class="diff-filter-tab" data-diff="High">High (67–99)</button>
+              </div>
+
+              <!-- Status Dropdown -->
+              <select id="catalog-status-filter" class="form-select status-select-filter">
+                <option value="all">All Statuses</option>
+                <option value="not_started">Not Started</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="catalog-stats-row">
+            <span id="catalog-results-count" class="catalog-count-text">Showing 99 tests</span>
+          </div>
+
+          <div id="test-catalog-grid" class="catalog-grid">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 3. INDIVIDUAL TEST VIEW ==================== -->
+    <section id="view-test" class="view-section test-environment hidden">
+      <!-- Test Header Bar -->
+      <div class="test-topbar">
+        <div class="test-topbar-left">
+          <button type="button" id="btn-exit-test" class="btn btn-ghost btn-sm" title="Exit to Dashboard">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Dashboard
+          </button>
+          <div class="test-title-group">
+            <h2 id="test-header-title" class="test-active-title">RC-19 Test</h2>
+            <span id="test-header-badge" class="test-active-badge">3 Questions • Medium</span>
+          </div>
+        </div>
+
+        <!-- Mobile View Tabs -->
+        <div class="mobile-pane-tabs" role="tablist">
+          <button type="button" id="mobile-tab-passage" class="mobile-pane-tab active" role="tab">Passage</button>
+          <button type="button" id="mobile-tab-question" class="mobile-pane-tab" role="tab">Question</button>
+        </div>
+
+        <div class="test-topbar-right">
+          <!-- Timer -->
+          <div class="timer-badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span id="test-timer-display" class="timer-text">00:00</span>
+            <button type="button" id="btn-timer-pause" class="btn-timer-pause" title="Pause Timer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+            </button>
+          </div>
+
+          <!-- Overall Progress Counter -->
+          <div class="test-progress-capsule">
+            <span id="test-progress-text" class="progress-capsule-text">0/3 Answered (0%)</span>
+            <div class="mini-progress-track">
+              <div id="test-progress-fill" class="mini-progress-fill" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Direct Submit Button -->
+          <button type="button" id="btn-test-submit" class="btn btn-primary btn-sm">
+            Submit Test
+          </button>
+
+          <!-- Mobile Toggle Palette -->
+          <button type="button" id="btn-toggle-palette" class="btn-palette-toggle" title="Question Palette">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Test Body Split-Screen Container -->
+      <div class="test-layout-split">
+        <!-- LEFT PANE: PASSAGE -->
+        <div id="test-left-pane" class="test-pane pane-passage">
+          <div class="passage-toolbar">
+            <div class="toolbar-left">
+              <span id="test-passage-title" class="passage-tag">Passage 19</span>
+              <span id="test-passage-word-count" class="word-count-tag">0 words</span>
+            </div>
+            <div class="toolbar-right font-controls">
+              <span class="font-label">Text size:</span>
+              <button type="button" id="btn-font-decrease" class="btn-font-tool" title="Decrease font size">A−</button>
+              <span id="font-size-indicator" class="font-size-val">16px</span>
+              <button type="button" id="btn-font-increase" class="btn-font-tool" title="Increase font size">A+</button>
+              <button type="button" id="btn-font-reset" class="btn-font-tool" title="Reset font size">Reset</button>
+            </div>
+          </div>
+
+          <div id="test-passage-content" class="passage-scrollable">
+            <div id="test-passage-text" class="passage-typography">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT PANE: QUESTION & OPTIONS -->
+        <div id="test-right-pane" class="test-pane pane-question mobile-hidden">
+          <div id="test-question-content" class="question-scrollable">
+            <div class="question-meta-row">
+              <div class="q-counter-badge">
+                Question <span id="test-q-number">1</span> of <span id="test-q-total">3</span>
+              </div>
+              <button type="button" id="btn-test-mark" class="btn-mark-review">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg>
+                Mark for Review
+              </button>
+            </div>
+
+            <!-- Question Text -->
+            <div class="question-body">
+              <div id="test-q-text" class="question-text">
+                <!-- Question rendered dynamically -->
+              </div>
+            </div>
+
+            <!-- Options Container -->
+            <div id="test-options-container" class="options-container">
+              <!-- Options A-E rendered dynamically -->
+            </div>
+
+            <!-- Bottom Question Toolbar -->
+            <div class="question-footer-toolbar">
+              <div class="footer-left">
+                <button type="button" id="btn-test-clear" class="btn btn-ghost btn-sm">
+                  Clear Selection
+                </button>
+              </div>
+              <div class="footer-right">
+                <button type="button" id="btn-test-prev" class="btn btn-secondary" disabled>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                  Previous
+                </button>
+                <button type="button" id="btn-test-next" class="btn btn-primary">
+                  Next Question
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHTMOST / DOCKED PALETTE -->
+        <aside id="test-palette-container" class="test-palette-dock">
+          <div class="palette-header">
+            <h4 class="palette-title">Question Palette</h4>
+          </div>
+
+          <div class="palette-legend">
+            <div class="legend-item"><span class="legend-dot answered"></span> Answered (<span id="palette-count-answered">0</span>)</div>
+            <div class="legend-item"><span class="legend-dot unanswered"></span> Unanswered (<span id="palette-count-unanswered">0</span>)</div>
+            <div class="legend-item"><span class="legend-dot marked"></span> Marked (<span id="palette-count-marked">0</span>)</div>
+          </div>
+
+          <div id="question-palette-grid" class="palette-grid">
+            <!-- Palette numbers rendered dynamically -->
+          </div>
+
+          <div class="palette-footer">
+            <button type="button" id="btn-palette-submit" class="btn btn-primary btn-block btn-sm" onclick="document.getElementById('btn-test-submit').click()">
+              Submit Test
+            </button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ==================== 4. RESULTS VIEW ==================== -->
+    <section id="view-results" class="view-section hidden">
+      <div class="results-wrapper">
+        <!-- Results Scorecard Banner -->
+        <div class="results-card">
+          <div class="results-header-row">
+            <div>
+              <span class="results-subtitle-tag">Test Assessment Report</span>
+              <h2 id="results-test-title" class="results-main-title">RC-19: Dinosaur Extinction</h2>
+              <p id="results-test-date" class="results-timestamp">Completed just now</p>
+            </div>
+            <div id="results-feedback-badge" class="results-badge badge-good">
+              ✓ Good Performance
+            </div>
+          </div>
+
+          <div class="scorecard-grid">
+            <!-- Circular / Donut Progress -->
+            <div class="score-circle-wrapper">
+              <svg class="score-circle-svg" viewBox="0 0 100 100">
+                <circle class="score-circle-bg" cx="50" cy="50" r="44"></circle>
+                <circle id="results-score-ring" class="score-circle-fill" cx="50" cy="50" r="44"></circle>
+              </svg>
+              <div class="score-circle-center">
+                <div id="results-score-percent" class="circle-percent">0%</div>
+                <div class="circle-label">Score</div>
+              </div>
+            </div>
+
+            <!-- Score breakdown stats -->
+            <div class="score-metrics-list">
+              <div class="metric-box">
+                <span class="metric-box-label">Raw Score</span>
+                <span id="results-score-value" class="metric-box-val">0/0</span>
+              </div>
+              <div class="metric-box">
+                <span class="metric-box-label">Accuracy</span>
+                <span id="results-accuracy-value" class="metric-box-val">0%</span>
+              </div>
+              <div class="metric-box">
+                <span class="metric-box-label">Time Taken</span>
+                <span id="results-time-value" class="metric-box-val">0m 0s</span>
+              </div>
+              <div class="metric-box">
+                <span class="metric-box-label">Avg Pace</span>
+                <span id="results-avg-time-value" class="metric-box-val">0s / Q</span>
+              </div>
+            </div>
+
+            <!-- Question breakdown chips -->
+            <div class="breakdown-chips-grid">
+              <div class="chip-card chip-correct">
+                <div class="chip-icon">✓</div>
+                <div class="chip-data">
+                  <span class="chip-count" id="results-count-correct">0</span>
+                  <span class="chip-title">Correct</span>
+                </div>
+              </div>
+
+              <div class="chip-card chip-incorrect">
+                <div class="chip-icon">✕</div>
+                <div class="chip-data">
+                  <span class="chip-count" id="results-count-incorrect">0</span>
+                  <span class="chip-title">Incorrect</span>
+                </div>
+              </div>
+
+              <div class="chip-card chip-unanswered">
+                <div class="chip-icon">⚪</div>
+                <div class="chip-data">
+                  <span class="chip-count" id="results-count-unanswered">0</span>
+                  <span class="chip-title">Unattempted</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action bar -->
+          <div class="results-actions-bar">
+            <button type="button" id="btn-results-review-solutions" class="btn btn-primary btn-lg">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+              Review Full Solutions & Explanations
+            </button>
+            <button type="button" id="btn-results-retake-test" class="btn btn-secondary btn-lg">
+              Retake Test
+            </button>
+            <button type="button" id="btn-results-dashboard" class="btn btn-ghost btn-lg">
+              Back to Dashboard
+            </button>
+          </div>
+        </div>
+
+        <!-- Question-wise Analysis Matrix -->
+        <div class="matrix-container">
+          <div class="matrix-header-row">
+            <div>
+              <h3 class="matrix-heading">Question-Wise Analysis</h3>
+              <p class="matrix-subheading">Review your selected answers against the official correct keys.</p>
+            </div>
+            
+            <div class="filter-tabs-pill">
+              <button type="button" class="results-filter-tab active" data-filter="all">All</button>
+              <button type="button" class="results-filter-tab" data-filter="correct">Correct</button>
+              <button type="button" class="results-filter-tab" data-filter="incorrect">Incorrect</button>
+              <button type="button" class="results-filter-tab" data-filter="unanswered">Unattempted</button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="matrix-table">
+              <thead>
+                <tr>
+                  <th style="width: 75px;">Q#</th>
+                  <th>Question Summary</th>
+                  <th style="width: 120px;">Your Answer</th>
+                  <th style="width: 120px;">Correct Key</th>
+                  <th style="width: 130px;">Result</th>
+                  <th style="width: 150px;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="results-matrix-body">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 5. SOLUTIONS VIEW ==================== -->
+    <section id="view-solutions" class="view-section test-environment solutions-mode hidden">
+      <!-- Solutions Topbar -->
+      <div class="test-topbar">
+        <div class="test-topbar-left">
+          <button type="button" id="btn-sol-back-results" class="btn btn-ghost btn-sm">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Scorecard
+          </button>
+          <div class="test-title-group">
+            <h2 id="sol-header-title" class="test-active-title">RC-19 Solutions</h2>
+            <span id="sol-header-subtitle" class="test-active-badge">Full Solutions & Option Analysis</span>
+          </div>
+        </div>
+
+        <div class="test-topbar-right">
+          <div class="solutions-nav-controls">
+            <button type="button" id="btn-sol-prev" class="btn btn-secondary btn-sm" disabled>
+              ← Prev Solution
+            </button>
+            <button type="button" id="btn-sol-next" class="btn btn-secondary btn-sm">
+              Next Solution →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Solutions Split-Screen -->
+      <div class="test-layout-split">
+        <!-- Left: Passage with Mapping -->
+        <div class="test-pane pane-passage">
+          <div class="passage-toolbar">
+            <span id="sol-passage-title" class="passage-tag">Passage 19</span>
+            <span class="badge-source-note">PDF Single Source of Truth</span>
+          </div>
+          <div id="sol-passage-content" class="passage-scrollable passage-typography">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Right: Question + Detailed Explanations + Option Analysis -->
+        <div id="sol-right-pane" class="test-pane pane-question">
+          <div id="sol-detail-container" class="solution-detail-scrollable">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Rightmost: Solution Palette -->
+        <aside class="test-palette-dock">
+          <div class="palette-header">
+            <h4 class="palette-title">Solutions Index</h4>
+          </div>
+          <div id="sol-palette-grid" class="palette-grid">
+            <!-- Palette buttons rendered dynamically -->
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ==================== 6. HISTORY / MY PROGRESS VIEW ==================== -->
+    <section id="view-history" class="view-section hidden">
+      <div class="history-wrapper">
+        <div class="history-hero">
+          <h2 class="history-title">My Performance History & Analytics</h2>
+          <p class="history-subtitle">Comprehensive record of all your RC test attempts, accuracy metrics, and score trajectory over time.</p>
+        </div>
+
+        <!-- Aggregate Cards -->
+        <div class="stats-overview-grid">
+          <div class="stat-card">
+            <div class="stat-content">
+              <span class="stat-label">RC-19 Best Score</span>
+              <div id="prog-best-score" class="stat-value text-blue">—</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-content">
+              <span class="stat-label">RC-19 Latest Score</span>
+              <div id="prog-latest-score" class="stat-value text-green">—</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-content">
+              <span class="stat-label">Overall Avg Score</span>
+              <div id="prog-avg-score" class="stat-value">0%</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-content">
+              <span class="stat-label">Best Accuracy</span>
+              <div id="prog-best-acc" class="stat-value">0%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question Breakdown Summary -->
+        <div class="history-breakdown-card">
+          <h3 class="breakdown-card-title">Cumulative Question Statistics</h3>
+          <div class="history-chips-row">
+            <div class="hist-chip">
+              <span class="hist-chip-num" id="prog-total-attempts">0</span>
+              <span class="hist-chip-label">Total Attempts</span>
+            </div>
+            <div class="hist-chip">
+              <span class="hist-chip-num" id="prog-total-attempted">0</span>
+              <span class="hist-chip-label">Attempted Qs</span>
+            </div>
+            <div class="hist-chip text-green">
+              <span class="hist-chip-num" id="prog-total-correct">0</span>
+              <span class="hist-chip-label">Correct Qs</span>
+            </div>
+            <div class="hist-chip text-rose">
+              <span class="hist-chip-num" id="prog-total-incorrect">0</span>
+              <span class="hist-chip-label">Incorrect Qs</span>
+            </div>
+            <div class="hist-chip text-muted">
+              <span class="hist-chip-num" id="prog-total-unanswered">0</span>
+              <span class="hist-chip-label">Unanswered Qs</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Attempts Log Table -->
+        <div class="matrix-container">
+          <div class="matrix-header-row">
+            <h3 class="matrix-heading">Previous Attempt Records</h3>
+          </div>
+
+          <div class="table-responsive">
+            <table class="matrix-table">
+              <thead>
+                <tr>
+                  <th style="width: 100px;">Attempt #</th>
+                  <th>Test Name</th>
+                  <th>Date & Time</th>
+                  <th>Score</th>
+                  <th>Accuracy</th>
+                  <th>Time Taken</th>
+                  <th style="width: 150px;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="prog-attempts-tbody">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 7. ADMIN / CMS VIEW ==================== -->
+    <section id="view-admin" class="view-section hidden">
+      <div class="admin-wrapper">
+        <div class="admin-hero">
+          <div class="admin-hero-left">
+            <span class="admin-badge">Instructor & Content Management</span>
+            <h2 class="admin-title">Test Content Management System</h2>
+            <p class="admin-subtitle">Add, edit, delete, reorder questions, update passages, and manage test publishing.</p>
+          </div>
+          <div class="admin-hero-actions">
+            <button type="button" id="btn-admin-reset-pdf" class="btn btn-danger btn-sm">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+              Reset to Default PDF Data
+            </button>
+            <button type="button" id="btn-admin-create-test" class="btn btn-secondary btn-sm">
+              + Create New Test
+            </button>
+          </div>
+        </div>
+
+        <div class="admin-controls-card">
+          <div class="form-group-inline">
+            <label for="admin-test-select">Select Test to Manage:</label>
+            <select id="admin-test-select" class="form-select">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+        </div>
+
+        <!-- Test Metadata & Passage Edit Form -->
+        <div class="admin-grid">
+          <!-- Metadata Card -->
+          <div class="admin-card">
+            <h3 class="admin-card-title">Test Metadata</h3>
+            
+            <div class="form-group">
+              <label for="admin-test-title">Test Title</label>
+              <input type="text" id="admin-test-title" class="form-input" />
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="admin-test-code">Test Code</label>
+                <input type="text" id="admin-test-code" class="form-input" />
+              </div>
+              <div class="form-group">
+                <label for="admin-test-difficulty">Difficulty</label>
+                <select id="admin-test-difficulty" class="form-select">
+                  <option value="Low">Low</option>
+                  <option value="Medium">Medium</option>
+                  <option value="High">High</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="admin-test-category">Category</label>
+              <input type="text" id="admin-test-category" class="form-input" />
+            </div>
+
+            <div class="form-group">
+              <label for="admin-test-desc">Short Description</label>
+              <textarea id="admin-test-desc" class="form-textarea" rows="2"></textarea>
+            </div>
+
+            <div class="form-checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="admin-test-published" checked />
+                <span>Publish this test to student catalog</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Passage Content Card -->
+          <div class="admin-card">
+            <h3 class="admin-card-title">Passage Content & Scope</h3>
+
+            <div class="form-group">
+              <label for="admin-passage-title">Passage Heading</label>
+              <input type="text" id="admin-passage-title" class="form-input" />
+            </div>
+
+            <div class="form-group">
+              <label for="admin-passage-scope">Topic & Scope</label>
+              <input type="text" id="admin-passage-scope" class="form-input" />
+            </div>
+
+            <div class="form-group">
+              <label for="admin-passage-mapping">Passage Mapping (1 item per line)</label>
+              <textarea id="admin-passage-mapping" class="form-textarea" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="admin-passage-text">Passage Paragraphs (separate by blank line)</label>
+              <textarea id="admin-passage-text" class="form-textarea" rows="6"></textarea>
+            </div>
+
+            <button type="button" id="btn-admin-save-test" class="btn btn-primary btn-block">
+              Save Test & Passage Changes
+            </button>
+          </div>
+        </div>
+
+        <!-- Questions Manager Card -->
+        <div class="admin-card full-width">
+          <div class="admin-card-header-row">
+            <div>
+              <h3 class="admin-card-title">Questions List</h3>
+              <p class="admin-card-subtitle">Manage, reorder, or add questions for this test.</p>
+            </div>
+            <button type="button" id="btn-admin-add-question" class="btn btn-primary btn-sm">
+              + Add Question
+            </button>
+          </div>
+
+          <div id="admin-questions-list" class="admin-questions-list">
+            <!-- Questions rendered dynamically -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Test Mode Selection Modal (Timed 8m vs Untimed) -->
+  <div id="test-mode-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-mode-title">
+    <div class="modal-card">
+      <div class="modal-icon-header">
+        <div class="modal-icon icon-clock">⏱</div>
+      </div>
+      <h3 id="modal-mode-title" class="modal-title">Choose Test Mode</h3>
+      <p id="modal-mode-desc" class="modal-desc">Select how you want to take this Reading Comprehension test.</p>
+
+      <div class="mode-options-grid">
+        <button type="button" id="btn-choose-timed" class="mode-select-card">
+          <div class="mode-card-badge">Standard Exam Pace</div>
+          <div class="mode-card-header">
+            <span class="mode-icon-circle">⏱</span>
+            <div class="mode-card-titles">
+              <h4 class="mode-title">Timed Test (8 Minutes)</h4>
+              <p class="mode-subtitle">Real exam condition with an 8:00 countdown timer and pacing alerts.</p>
+            </div>
+          </div>
+        </button>
+
+        <button type="button" id="btn-choose-untimed" class="mode-select-card">
+          <div class="mode-card-badge badge-relaxed">Practice Pace</div>
+          <div class="mode-card-header">
+            <span class="mode-icon-circle">♾</span>
+            <div class="mode-card-titles">
+              <h4 class="mode-title">Untimed Test</h4>
+              <p class="mode-subtitle">Practice with an open stopwatch and no countdown pressure.</p>
+            </div>
+          </div>
+        </button>
+      </div>
+
+      <div class="modal-actions single-center">
+        <button type="button" id="modal-cancel-mode-btn" class="btn btn-ghost">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Submit Confirmation Modal -->
+  <div id="test-submit-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-submit-title">
+    <div class="modal-card">
+      <div class="modal-icon-header">
+        <div class="modal-icon">?</div>
+      </div>
+      <h3 id="modal-submit-title" class="modal-title">Ready to Submit Test?</h3>
+      <p class="modal-desc">Please review your answer status before finalizing your submission.</p>
+
+      <div class="modal-summary-box">
+        <div class="modal-summary-item">
+          <span class="m-label">Total Questions:</span>
+          <span class="m-val" id="modal-submit-total">0</span>
+        </div>
+        <div class="modal-summary-item text-green">
+          <span class="m-label">Answered:</span>
+          <span class="m-val" id="modal-submit-answered">0</span>
+        </div>
+        <div class="modal-summary-item text-rose">
+          <span class="m-label">Unanswered:</span>
+          <span class="m-val" id="modal-submit-unanswered">0</span>
+        </div>
+        <div class="modal-summary-item text-amber">
+          <span class="m-label">Marked for Review:</span>
+          <span class="m-val" id="modal-submit-marked">0</span>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" id="modal-cancel-submit-btn" class="btn btn-secondary">
+          Return to Test
+        </button>
+        <button type="button" id="modal-confirm-submit-btn" class="btn btn-primary">
+          Confirm & Submit
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pause Test Modal -->
+  <div id="test-pause-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-card text-center">
+      <div class="modal-icon-header">
+        <div class="modal-icon icon-pause">⏸</div>
+      </div>
+      <h3 class="modal-title">Test Paused</h3>
+      <p class="modal-desc">The timer is currently stopped and your selections are safely preserved.</p>
+      <div class="modal-actions single-center">
+        <button type="button" id="btn-modal-resume-test" class="btn btn-primary btn-lg">
+          Resume Test
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Question Edit Modal -->
+  <div id="admin-question-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-card modal-lg">
+      <div class="modal-header-line">
+        <h3 id="modal-q-title" class="modal-title">Edit Question</h3>
+      </div>
+
+      <div class="modal-scroll-body">
+        <div class="form-group">
+          <label for="modal-q-text">Question Text</label>
+          <textarea id="modal-q-text" class="form-textarea" rows="3"></textarea>
+        </div>
+
+        <div class="options-edit-grid">
+          <div class="form-group">
+            <label for="modal-opt-a">Option A</label>
+            <input type="text" id="modal-opt-a" class="form-input" />
+            <input type="text" id="modal-analysis-a" class="form-input form-input-sub" placeholder="Elimination reason for Option A (e.g. Out of Scope...)" />
+          </div>
+
+          <div class="form-group">
+            <label for="modal-opt-b">Option B</label>
+            <input type="text" id="modal-opt-b" class="form-input" />
+            <input type="text" id="modal-analysis-b" class="form-input form-input-sub" placeholder="Elimination reason for Option B (e.g. Distortion...)" />
+          </div>
+
+          <div class="form-group">
+            <label for="modal-opt-c">Option C</label>
+            <input type="text" id="modal-opt-c" class="form-input" />
+            <input type="text" id="modal-analysis-c" class="form-input form-input-sub" placeholder="Elimination reason for Option C (e.g. Opposite...)" />
+          </div>
+
+          <div class="form-group">
+            <label for="modal-opt-d">Option D</label>
+            <input type="text" id="modal-opt-d" class="form-input" />
+            <input type="text" id="modal-analysis-d" class="form-input form-input-sub" placeholder="Elimination reason for Option D (e.g. The Correct Answer...)" />
+          </div>
+
+          <div class="form-group">
+            <label for="modal-opt-e">Option E</label>
+            <input type="text" id="modal-opt-e" class="form-input" />
+            <input type="text" id="modal-analysis-e" class="form-input form-input-sub" placeholder="Elimination reason for Option E (e.g. Extreme...)" />
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="modal-q-correct">Correct Answer Key</label>
+            <select id="modal-q-correct" class="form-select">
+              <option value="A">Option A</option>
+              <option value="B">Option B</option>
+              <option value="C">Option C</option>
+              <option value="D">Option D</option>
+              <option value="E">Option E</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="modal-q-explanation">Official Solution & Explanation</label>
+          <textarea id="modal-q-explanation" class="form-textarea" rows="4"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" id="btn-modal-cancel-question" class="btn btn-secondary">
+          Cancel
+        </button>
+        <button type="button" id="btn-modal-save-question" class="btn btn-primary">
+          Save Question
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/app.bundle.js?v=fixed_v32"></script>
+</body>
+</html>
