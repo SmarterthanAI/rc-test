@@ -3704,6 +3704,8 @@ html, body {
   </div>
 
   <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
   <script>
 /**
  * RC-99 Test Platform - Single Standalone Bundle
@@ -18510,19 +18512,46 @@ html, body {
       } else {
         const safeUser = {
           id: user.id,
-          name: user.name,
+          name: user.name || (user.user_metadata && user.user_metadata.name) || user.email.split('@')[0],
           email: user.email,
           role: user.role || 'student',
-          createdAt: user.createdAt
+          isGuest: !!user.isGuest,
+          createdAt: user.createdAt || user.created_at || new Date().toISOString()
         };
         StorageService.set(STORAGE_KEYS.CURRENT_USER, safeUser);
       }
     },
 
-    registerUser(name, email, password) {
+    async registerUser(name, email, password) {
       const trimmedEmail = email.trim().toLowerCase();
-      const users = this.getUsers();
 
+      // If Supabase is connected, register with Supabase Auth
+      if (window.isSupabaseActive && window.isSupabaseActive()) {
+        const { data, error } = await window.supabaseClient.auth.signUp({
+          email: trimmedEmail,
+          password: password,
+          options: {
+            data: { name: name.trim() }
+          }
+        });
+
+        if (error) throw new Error(error.message);
+
+        const sbUser = data.user;
+        const newUser = {
+          id: sbUser.id,
+          name: name.trim(),
+          email: trimmedEmail,
+          role: 'student',
+          createdAt: sbUser.created_at || new Date().toISOString()
+        };
+
+        this.setCurrentUser(newUser);
+        return newUser;
+      }
+
+      // Fallback local registration
+      const users = this.getUsers();
       if (users.some(u => u.email.toLowerCase() === trimmedEmail)) {
         throw new Error('An account with this email already exists.');
       }
@@ -18542,13 +18571,37 @@ html, body {
       return newUser;
     },
 
-    loginUser(email, password) {
+    async loginUser(email, password) {
       const trimmedEmail = email.trim().toLowerCase();
+
+      // If Supabase is connected, authenticate with Supabase Auth
+      if (window.isSupabaseActive && window.isSupabaseActive()) {
+        const { data, error } = await window.supabaseClient.auth.signInWithPassword({
+          email: trimmedEmail,
+          password: password
+        });
+
+        if (error) throw new Error(error.message);
+
+        const sbUser = data.user;
+        const loggedUser = {
+          id: sbUser.id,
+          name: (sbUser.user_metadata && sbUser.user_metadata.name) || trimmedEmail.split('@')[0],
+          email: trimmedEmail,
+          role: 'student',
+          createdAt: sbUser.created_at || new Date().toISOString()
+        };
+
+        this.setCurrentUser(loggedUser);
+        return loggedUser;
+      }
+
+      // Fallback local login
       const users = this.getUsers();
       const user = users.find(u => u.email.toLowerCase() === trimmedEmail);
 
       if (!user) {
-        throw new Error('No user found with this email address.');
+        throw new Error('No user found with this email address. Please sign up first.');
       }
 
       if (user.password !== password) {
@@ -18572,7 +18625,12 @@ html, body {
       return guestUser;
     },
 
-    logoutUser() {
+    async logoutUser() {
+      if (window.isSupabaseActive && window.isSupabaseActive()) {
+        try {
+          await window.supabaseClient.auth.signOut();
+        } catch (e) {}
+      }
       StorageService.remove(STORAGE_KEYS.CURRENT_USER);
     },
 
@@ -18639,6 +18697,25 @@ html, body {
         lastUpdated: new Date().toISOString()
       };
       StorageService.set(STORAGE_KEYS.PROGRESS, store);
+
+      // Async sync to Supabase if active
+      if (window.isSupabaseActive && window.isSupabaseActive()) {
+        const user = this.getCurrentUser();
+        if (user && !user.isGuest) {
+          window.supabaseClient.from('user_progress').upsert({
+            id: userId + '_' + testId,
+            user_id: userId,
+            test_id: testId,
+            current_index: progressData.currentIndex || 0,
+            mode: progressData.mode || 'timed',
+            time_elapsed: progressData.timeElapsed || 0,
+            time_remaining: progressData.timeRemaining || 480,
+            user_answers: progressData.userAnswers || {},
+            marked_for_review: progressData.markedForReview || {},
+            last_updated: new Date().toISOString()
+          }).then(() => {}).catch(() => {});
+        }
+      }
     },
 
     clearTestProgress(userId, testId) {
@@ -18647,6 +18724,13 @@ html, body {
       if (store[userId] && store[userId][testId]) {
         delete store[userId][testId];
         StorageService.set(STORAGE_KEYS.PROGRESS, store);
+      }
+
+      if (window.isSupabaseActive && window.isSupabaseActive()) {
+        const user = this.getCurrentUser();
+        if (user && !user.isGuest) {
+          window.supabaseClient.from('user_progress').delete().eq('id', userId + '_' + testId).then(() => {}).catch(() => {});
+        }
       }
     },
 
@@ -18664,6 +18748,34 @@ html, body {
       attempts.unshift(fullRecord);
       StorageService.set(STORAGE_KEYS.ATTEMPTS, attempts);
       this.clearTestProgress(fullRecord.userId, fullRecord.testId);
+
+      // Async sync to Supabase
+      if (window.isSupabaseActive && window.isSupabaseActive()) {
+        const user = this.getCurrentUser();
+        if (user && !user.isGuest) {
+          window.supabaseClient.from('test_attempts').insert({
+            id: fullRecord.id,
+            user_id: fullRecord.userId,
+            user_name: fullRecord.userName,
+            test_id: fullRecord.testId,
+            test_title: fullRecord.testTitle,
+            test_code: fullRecord.testCode,
+            mode: fullRecord.mode,
+            total_questions: fullRecord.totalQuestions,
+            attempted_count: fullRecord.attemptedCount,
+            correct_count: fullRecord.correctCount,
+            incorrect_count: fullRecord.incorrectCount,
+            unattempted_count: fullRecord.unattemptedCount,
+            score: fullRecord.score,
+            score_percent: fullRecord.scorePercent,
+            accuracy_percent: fullRecord.accuracyPercent,
+            time_elapsed_seconds: fullRecord.timeElapsedSeconds,
+            submitted_at: fullRecord.submittedAt,
+            answers: fullRecord.answers
+          }).then(() => {}).catch(() => {});
+        }
+      }
+
       return fullRecord;
     },
 
@@ -18771,10 +18883,53 @@ html, body {
   const Auth = {
     onAuthChange: null,
 
-    init(onAuthChange) {
+    async init(onAuthChange) {
       this.onAuthChange = onAuthChange;
       this.bindEvents();
       this.updateUserUI();
+
+      // Check if active Supabase session exists
+      if (window.isSupabaseActive && window.isSupabaseActive()) {
+        try {
+          const { data } = await window.supabaseClient.auth.getSession();
+          if (data && data.session && data.session.user) {
+            const sbUser = data.session.user;
+            const user = {
+              id: sbUser.id,
+              name: (sbUser.user_metadata && sbUser.user_metadata.name) || sbUser.email.split('@')[0],
+              email: sbUser.email,
+              role: 'student',
+              createdAt: sbUser.created_at
+            };
+            DB.setCurrentUser(user);
+            this.updateUserUI();
+            if (this.onAuthChange) this.onAuthChange(user);
+          }
+
+          // Listen to auth state changes across tabs / token refreshes
+          window.supabaseClient.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' && session) {
+              const u = session.user;
+              const activeUser = {
+                id: u.id,
+                name: (u.user_metadata && u.user_metadata.name) || u.email.split('@')[0],
+                email: u.email,
+                role: 'student',
+                createdAt: u.created_at
+              };
+              DB.setCurrentUser(activeUser);
+              this.updateUserUI();
+              if (this.onAuthChange) this.onAuthChange(activeUser);
+            } else if (event === 'SIGNED_OUT') {
+              DB.setCurrentUser(null);
+              this.updateUserUI();
+              if (this.onAuthChange) this.onAuthChange(null);
+            }
+          });
+        } catch (err) {
+          console.warn('Supabase session check:', err);
+        }
+      }
 
       // Expose globally for instant button access
       window.loginAsGuest = () => {
@@ -18783,16 +18938,28 @@ html, body {
         if (this.onAuthChange) this.onAuthChange(guest);
       };
 
-      window.loginAsStudentDemo = () => {
-        const user = DB.loginUser('alex@example.com', 'password123');
-        this.updateUserUI();
-        if (this.onAuthChange) this.onAuthChange(user);
+      window.loginAsStudentDemo = async () => {
+        try {
+          const user = await DB.loginUser('alex@example.com', 'password123');
+          this.updateUserUI();
+          if (this.onAuthChange) this.onAuthChange(user);
+        } catch (e) {
+          const guest = DB.loginGuest();
+          this.updateUserUI();
+          if (this.onAuthChange) this.onAuthChange(guest);
+        }
       };
 
-      window.loginAsAdminDemo = () => {
-        const user = DB.loginUser('admin@rc99.edu', 'adminpassword');
-        this.updateUserUI();
-        if (this.onAuthChange) this.onAuthChange(user);
+      window.loginAsAdminDemo = async () => {
+        try {
+          const user = await DB.loginUser('admin@rc99.edu', 'adminpassword');
+          this.updateUserUI();
+          if (this.onAuthChange) this.onAuthChange(user);
+        } catch (e) {
+          const guest = DB.loginGuest();
+          this.updateUserUI();
+          if (this.onAuthChange) this.onAuthChange(guest);
+        }
       };
     },
 
@@ -18829,34 +18996,45 @@ html, body {
       }
 
       if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
+        loginForm.addEventListener('submit', async (e) => {
           e.preventDefault();
           const email = document.getElementById('login-email').value;
           const password = document.getElementById('login-password').value;
           const errorEl = document.getElementById('login-error');
+          const submitBtn = loginForm.querySelector('button[type="submit"]');
 
           try {
-            const user = DB.loginUser(email, password);
+            if (submitBtn) {
+              submitBtn.disabled = true;
+              submitBtn.textContent = 'Signing in...';
+            }
+            const user = await DB.loginUser(email, password);
             this.clearErrors();
             this.updateUserUI();
             if (this.onAuthChange) this.onAuthChange(user);
           } catch (err) {
             if (errorEl) {
-              errorEl.textContent = err.message;
+              errorEl.textContent = err.message || 'Login failed. Please check your credentials.';
               errorEl.classList.remove('hidden');
+            }
+          } finally {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.textContent = 'Sign In to Dashboard';
             }
           }
         });
       }
 
       if (signupForm) {
-        signupForm.addEventListener('submit', (e) => {
+        signupForm.addEventListener('submit', async (e) => {
           e.preventDefault();
           const name = document.getElementById('signup-name').value;
           const email = document.getElementById('signup-email').value;
           const password = document.getElementById('signup-password').value;
           const confirm = document.getElementById('signup-confirm').value;
           const errorEl = document.getElementById('signup-error');
+          const submitBtn = signupForm.querySelector('button[type="submit"]');
 
           if (password !== confirm) {
             if (errorEl) {
@@ -18866,23 +19044,24 @@ html, body {
             return;
           }
 
-          if (password.length < 6) {
-            if (errorEl) {
-              errorEl.textContent = 'Password must be at least 6 characters long.';
-              errorEl.classList.remove('hidden');
-            }
-            return;
-          }
-
           try {
-            const user = DB.registerUser(name, email, password);
+            if (submitBtn) {
+              submitBtn.disabled = true;
+              submitBtn.textContent = 'Creating account...';
+            }
+            const user = await DB.registerUser(name, email, password);
             this.clearErrors();
             this.updateUserUI();
             if (this.onAuthChange) this.onAuthChange(user);
           } catch (err) {
             if (errorEl) {
-              errorEl.textContent = err.message;
+              errorEl.textContent = err.message || 'Signup failed. Please try again.';
               errorEl.classList.remove('hidden');
+            }
+          } finally {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.textContent = 'Create Free Account';
             }
           }
         });
@@ -18903,50 +19082,64 @@ html, body {
 
       const demoStudentBtn = document.getElementById('btn-demo-student');
       if (demoStudentBtn) {
-        demoStudentBtn.addEventListener('click', (e) => {
+        demoStudentBtn.addEventListener('click', async (e) => {
           if (e) {
             e.preventDefault();
             e.stopPropagation();
           }
-          const user = DB.loginUser('alex@example.com', 'password123');
-          this.updateUserUI();
-          if (this.onAuthChange) this.onAuthChange(user);
+          try {
+            const user = await DB.loginUser('alex@example.com', 'password123');
+            this.updateUserUI();
+            if (this.onAuthChange) this.onAuthChange(user);
+          } catch (err) {
+            const guest = DB.loginGuest();
+            this.updateUserUI();
+            if (this.onAuthChange) this.onAuthChange(guest);
+          }
         });
       }
 
       const demoAdminBtn = document.getElementById('btn-demo-admin');
       if (demoAdminBtn) {
-        demoAdminBtn.addEventListener('click', (e) => {
+        demoAdminBtn.addEventListener('click', async (e) => {
           if (e) {
             e.preventDefault();
             e.stopPropagation();
           }
-          const user = DB.loginUser('admin@rc99.edu', 'adminpassword');
-          this.updateUserUI();
-          if (this.onAuthChange) this.onAuthChange(user);
+          try {
+            const user = await DB.loginUser('admin@rc99.edu', 'adminpassword');
+            this.updateUserUI();
+            if (this.onAuthChange) this.onAuthChange(user);
+          } catch (err) {
+            const guest = DB.loginGuest();
+            this.updateUserUI();
+            if (this.onAuthChange) this.onAuthChange(guest);
+          }
         });
       }
 
       const logoutBtn = document.getElementById('btn-logout');
       if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-          DB.logoutUser();
-          this.updateUserUI();
-          if (this.onAuthChange) this.onAuthChange(null);
+        logoutBtn.addEventListener('click', async () => {
+          if (confirm('Are you sure you want to sign out?')) {
+            await DB.logoutUser();
+            this.updateUserUI();
+            if (this.onAuthChange) this.onAuthChange(null);
+          }
         });
       }
     },
 
     clearErrors() {
-      const loginError = document.getElementById('login-error');
-      const signupError = document.getElementById('signup-error');
-      if (loginError) {
-        loginError.textContent = '';
-        loginError.classList.add('hidden');
+      const loginErr = document.getElementById('login-error');
+      const signupErr = document.getElementById('signup-error');
+      if (loginErr) {
+        loginErr.textContent = '';
+        loginErr.classList.add('hidden');
       }
-      if (signupError) {
-        signupError.textContent = '';
-        signupError.classList.add('hidden');
+      if (signupErr) {
+        signupErr.textContent = '';
+        signupErr.classList.add('hidden');
       }
     },
 
@@ -18954,15 +19147,31 @@ html, body {
       const user = this.getCurrentUser();
       const userNav = document.getElementById('user-navigation');
       const authNav = document.getElementById('auth-navigation');
-      const userNameDisplay = document.getElementById('header-user-name');
-      const userAvatarDisplay = document.getElementById('header-user-avatar');
+      const adminLink = document.getElementById('nav-admin-link');
+      const avatarEl = document.getElementById('header-user-avatar');
+      const nameEl = document.getElementById('header-user-name');
 
       if (user) {
         if (userNav) userNav.classList.remove('hidden');
         if (authNav) authNav.classList.add('hidden');
-        if (userNameDisplay) userNameDisplay.textContent = user.name;
-        if (userAvatarDisplay) {
-          userAvatarDisplay.textContent = user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+
+        if (nameEl) nameEl.textContent = user.name || user.email;
+        if (avatarEl) {
+          const initials = (user.name || user.email || 'US')
+            .split(' ')
+            .map(n => n[0])
+            .slice(0, 2)
+            .join('')
+            .toUpperCase();
+          avatarEl.textContent = initials;
+        }
+
+        if (adminLink) {
+          if (user.role === 'admin') {
+            adminLink.classList.remove('hidden');
+          } else {
+            adminLink.classList.add('hidden');
+          }
         }
       } else {
         if (userNav) userNav.classList.add('hidden');
