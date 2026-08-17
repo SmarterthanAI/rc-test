@@ -14718,11 +14718,11 @@
   // STORAGE & DATABASE LAYER
   // ==========================================
   const STORAGE_KEYS = {
-    USERS: 'rc99_users_v32',
-    CURRENT_USER: 'rc99_active_session_v32',
-    TESTS: 'rc99_tests_v32',
-    PROGRESS: 'rc99_progress_v32',
-    ATTEMPTS: 'rc99_attempts_v32'
+    USERS: 'rc99_users_store',
+    CURRENT_USER: 'rc99_active_session',
+    TESTS: 'rc99_tests_store',
+    PROGRESS: 'rc99_progress_store',
+    ATTEMPTS: 'rc99_attempts_store'
   };
 
   const DEFAULT_USERS = [
@@ -14747,7 +14747,20 @@
   const StorageService = {
     get(key, defaultValue = null) {
       try {
-        const item = localStorage.getItem(key);
+        let item = localStorage.getItem(key);
+        if (!item) {
+          const legacyKeys = ['rc99_users_v32', 'rc99_progress_v32', 'rc99_attempts_v32', 'rc99_active_session_v32'];
+          for (let lk of legacyKeys) {
+            if (lk.includes(key.replace('rc99_', '').replace('_store', ''))) {
+              let legacyItem = localStorage.getItem(lk);
+              if (legacyItem) {
+                item = legacyItem;
+                localStorage.setItem(key, item);
+                break;
+              }
+            }
+          }
+        }
         return item ? JSON.parse(item) : defaultValue;
       } catch (e) {
         console.error("Error reading " + key + ":", e);
@@ -16560,7 +16573,6 @@
       if (!user) return;
 
       const stats = DB.getUserStats(user.id);
-      const rc19Stats = DB.getUserStats(user.id, 'rc-19');
 
       const pBestScore = document.getElementById('prog-best-score');
       const pLatestScore = document.getElementById('prog-latest-score');
@@ -16573,8 +16585,8 @@
       const pTotalIncorrect = document.getElementById('prog-total-incorrect');
       const pTotalUnanswered = document.getElementById('prog-total-unanswered');
 
-      if (pBestScore) pBestScore.textContent = rc19Stats.bestScore ? rc19Stats.bestScore.percent + '%' : '—';
-      if (pLatestScore) pLatestScore.textContent = rc19Stats.latestScore ? rc19Stats.latestScore.percent + '%' : '—';
+      if (pBestScore) pBestScore.textContent = stats.bestScore ? stats.bestScore.percent + '%' : '—';
+      if (pLatestScore) pLatestScore.textContent = stats.latestScore ? stats.latestScore.percent + '%' : '—';
       if (pAvgScore) pAvgScore.textContent = stats.averageScorePercent + '%';
       if (pBestAcc) pBestAcc.textContent = stats.bestAccuracy + '%';
       if (pAvgAcc) pAvgAcc.textContent = stats.averageAccuracy + '%';

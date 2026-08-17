@@ -2797,11 +2797,11 @@ html, body {
           <div class="auth-features-list">
             <div class="feature-item">
               <div class="feature-icon">✓</div>
-              <span><strong>RC-19 Spotlight:</strong> Extracted verbatim from the official guide with zero hallucinations.</span>
+              <span><strong>Complete RC-99 Collection:</strong> All 99 passages extracted verbatim from the official guide with zero hallucinations.</span>
             </div>
             <div class="feature-item">
               <div class="feature-icon">✓</div>
-              <span><strong>Stateful Session Continuity:</strong> Never lose answers between questions or after logout.</span>
+              <span><strong>Stateful Session Continuity:</strong> Progress, active tests, and attempts are permanently saved to your account.</span>
             </div>
             <div class="feature-item">
               <div class="feature-icon">✓</div>
@@ -3327,13 +3327,13 @@ html, body {
         <div class="stats-overview-grid">
           <div class="stat-card">
             <div class="stat-content">
-              <span class="stat-label">RC-19 Best Score</span>
+              <span class="stat-label">Best Score</span>
               <div id="prog-best-score" class="stat-value text-blue">—</div>
             </div>
           </div>
           <div class="stat-card">
             <div class="stat-content">
-              <span class="stat-label">RC-19 Latest Score</span>
+              <span class="stat-label">Latest Score</span>
               <div id="prog-latest-score" class="stat-value text-green">—</div>
             </div>
           </div>
@@ -18425,11 +18425,11 @@ html, body {
   // STORAGE & DATABASE LAYER
   // ==========================================
   const STORAGE_KEYS = {
-    USERS: 'rc99_users_v32',
-    CURRENT_USER: 'rc99_active_session_v32',
-    TESTS: 'rc99_tests_v32',
-    PROGRESS: 'rc99_progress_v32',
-    ATTEMPTS: 'rc99_attempts_v32'
+    USERS: 'rc99_users_store',
+    CURRENT_USER: 'rc99_active_session',
+    TESTS: 'rc99_tests_store',
+    PROGRESS: 'rc99_progress_store',
+    ATTEMPTS: 'rc99_attempts_store'
   };
 
   const DEFAULT_USERS = [
@@ -18454,7 +18454,20 @@ html, body {
   const StorageService = {
     get(key, defaultValue = null) {
       try {
-        const item = localStorage.getItem(key);
+        let item = localStorage.getItem(key);
+        if (!item) {
+          const legacyKeys = ['rc99_users_v32', 'rc99_progress_v32', 'rc99_attempts_v32', 'rc99_active_session_v32'];
+          for (let lk of legacyKeys) {
+            if (lk.includes(key.replace('rc99_', '').replace('_store', ''))) {
+              let legacyItem = localStorage.getItem(lk);
+              if (legacyItem) {
+                item = legacyItem;
+                localStorage.setItem(key, item);
+                break;
+              }
+            }
+          }
+        }
         return item ? JSON.parse(item) : defaultValue;
       } catch (e) {
         console.error("Error reading " + key + ":", e);
@@ -20267,7 +20280,6 @@ html, body {
       if (!user) return;
 
       const stats = DB.getUserStats(user.id);
-      const rc19Stats = DB.getUserStats(user.id, 'rc-19');
 
       const pBestScore = document.getElementById('prog-best-score');
       const pLatestScore = document.getElementById('prog-latest-score');
@@ -20280,8 +20292,8 @@ html, body {
       const pTotalIncorrect = document.getElementById('prog-total-incorrect');
       const pTotalUnanswered = document.getElementById('prog-total-unanswered');
 
-      if (pBestScore) pBestScore.textContent = rc19Stats.bestScore ? rc19Stats.bestScore.percent + '%' : '—';
-      if (pLatestScore) pLatestScore.textContent = rc19Stats.latestScore ? rc19Stats.latestScore.percent + '%' : '—';
+      if (pBestScore) pBestScore.textContent = stats.bestScore ? stats.bestScore.percent + '%' : '—';
+      if (pLatestScore) pLatestScore.textContent = stats.latestScore ? stats.latestScore.percent + '%' : '—';
       if (pAvgScore) pAvgScore.textContent = stats.averageScorePercent + '%';
       if (pBestAcc) pBestAcc.textContent = stats.bestAccuracy + '%';
       if (pAvgAcc) pAvgAcc.textContent = stats.averageAccuracy + '%';
