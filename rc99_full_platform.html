@@ -2743,13 +2743,13 @@ html, body {
       <nav id="user-navigation" class="header-nav hidden">
         <ul class="nav-links">
           <li>
-            <a href="#" id="nav-dashboard-link" class="nav-link active">
+            <a href="#dashboard" id="nav-dashboard-link" class="nav-link active">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect></svg>
               Dashboard
             </a>
           </li>
           <li>
-            <a href="#" id="nav-progress-link" class="nav-link">
+            <a href="#progress" id="nav-progress-link" class="nav-link">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"></path></svg>
               My Progress
             </a>
@@ -20396,11 +20396,34 @@ html, body {
         }
       });
 
-      const currentUser = DB.getCurrentUser();
-      if (currentUser) {
-        this.showView('dashboard');
+      window.addEventListener('hashchange', () => this.handleRouting());
+      window.addEventListener('popstate', () => this.handleRouting());
+
+      this.handleRouting();
+    },
+
+    handleRouting() {
+      const user = DB.getCurrentUser();
+      const rawHash = window.location.hash.replace(/^#\/?/, '').trim().toLowerCase();
+      const rawPath = window.location.pathname.replace(/^\//, '').trim().toLowerCase();
+      const route = rawHash || rawPath || '';
+
+      if (!user) {
+        this.showView('auth', false);
+        return;
+      }
+
+      if (route.startsWith('test/')) {
+        const testId = route.replace('test/', '');
+        this.startTest(testId, true, 'timed');
+      } else if (route === 'history' || route === 'progress') {
+        this.showView('history', false);
+      } else if (route === 'solutions') {
+        this.showView('solutions', false);
+      } else if (route === 'results') {
+        this.showView('results', false);
       } else {
-        this.showView('auth');
+        this.showView('dashboard', false);
       }
     },
 
@@ -20477,11 +20500,18 @@ html, body {
     },
 
     startTest(testId, resume = true, mode = 'timed') {
-      this.showView('test');
+      this.showView('test', false);
+      if (window.location.hash !== '#test/' + testId) {
+        try {
+          history.pushState(null, '', '#test/' + testId);
+        } catch (e) {
+          window.location.hash = '#test/' + testId;
+        }
+      }
       TestEngine.start(testId, resume, mode);
     },
 
-    showView(viewName) {
+    showView(viewName, updateHash = true) {
       this.currentView = viewName;
 
       const views = [
@@ -20523,6 +20553,17 @@ html, body {
         History.renderDashboard();
       } else if (viewName === 'history') {
         History.renderProgressPage();
+      }
+
+      if (updateHash && viewName !== 'auth') {
+        const targetHash = viewName === 'history' ? '#progress' : '#' + viewName;
+        if (window.location.hash !== targetHash) {
+          try {
+            history.pushState(null, '', targetHash);
+          } catch (e) {
+            window.location.hash = targetHash;
+          }
+        }
       }
 
       window.scrollTo({ top: 0, behavior: 'instant' });

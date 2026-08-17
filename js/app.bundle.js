@@ -7,7 +7,8 @@
 (function () {
   'use strict';
 
-  const INITIAL_TESTS = [
+  const INITIAL_TESTS = 
+[
   {
     "id": "rc-01",
     "code": "RC-01",
@@ -14717,11 +14718,11 @@
   // STORAGE & DATABASE LAYER
   // ==========================================
   const STORAGE_KEYS = {
-    USERS: 'rc99_users_v31',
-    CURRENT_USER: 'rc99_active_session_v31',
-    TESTS: 'rc99_tests_v31',
-    PROGRESS: 'rc99_progress_v31',
-    ATTEMPTS: 'rc99_attempts_v31'
+    USERS: 'rc99_users_v32',
+    CURRENT_USER: 'rc99_active_session_v32',
+    TESTS: 'rc99_tests_v32',
+    PROGRESS: 'rc99_progress_v32',
+    ATTEMPTS: 'rc99_attempts_v32'
   };
 
   const DEFAULT_USERS = [
@@ -15466,7 +15467,7 @@
       if (passageTextContainer) {
         const paras = this.activeTest.passage.paragraphs || [];
         let fullText = paras.join(' ');
-        let wordCount = fullText.split(/ +/).filter(Boolean).length;
+        let wordCount = fullText.split(/\s+/).filter(Boolean).length;
         if (wordCountEl) wordCountEl.textContent = wordCount + ' words';
 
         let html = '';
@@ -15494,8 +15495,7 @@
       if (qNumEl) qNumEl.textContent = (this.currentIndex + 1);
       if (qTotalEl) qTotalEl.textContent = questions.length;
       if (qTextEl) {
-        qTextEl.innerHTML = this.escapeHTML(q.questionText).replace(/
-/g, '<br/>');
+        qTextEl.innerHTML = this.escapeHTML(q.questionText).split('\n').join('<br/>');
       }
 
       const currentSelected = this.userAnswers[q.id] || null;
@@ -16087,7 +16087,7 @@
           statusBadge = '<span class="status-pill status-incorrect">✕ Incorrect</span>';
         }
 
-        const cleanExcerpt = q.questionText.replace(/\n/g, ' ').substring(0, 95) + (q.questionText.length > 95 ? '...' : '');
+        const cleanExcerpt = q.questionText.split('\n').join(' ').substring(0, 95) + (q.questionText.length > 95 ? '...' : '');
 
         html += '<tr class="matrix-row"><td class="col-qnum"><span class="q-badge">Q' + (idx + 1) + '</span></td><td class="col-text"><div class="q-excerpt-title">' + this.escapeHTML(cleanExcerpt) + '</div></td><td class="col-user-ans">' + (selected ? '<span class="ans-key-tag user-key ' + (isCorrect ? 'key-correct' : 'key-incorrect') + '">' + selected + '</span>' : '<span class="ans-dash">—</span>') + '</td><td class="col-correct-ans"><span class="ans-key-tag key-correct">' + correct + '</span></td><td class="col-status">' + statusBadge + '</td><td class="col-action"><button type="button" class="btn-table-action" data-index="' + idx + '">View Solution →</button></td></tr>';
       });
@@ -16285,7 +16285,7 @@
         '<div class="sol-q-meta"><span class="badge-q-number">Question ' + (this.currentSolutionIndex + 1) + ' of ' + questions.length + '</span>' +
         (isAttempted ? (isCorrect ? '<span class="pill-chip pill-correct">+1 Mark</span>' : '<span class="pill-chip pill-incorrect">0 Marks</span>') : '<span class="pill-chip pill-skipped">Skipped</span>') +
         '</div>' +
-        '<h3 class="sol-q-text">' + this.escapeHTML(q.questionText).replace(/\n/g, '<br/>') + '</h3>' +
+        '<h3 class="sol-q-text">' + this.escapeHTML(q.questionText).split('\n').join('<br/>') + '</h3>' +
         '</div>' +
         resultBanner +
         (q.explanation ?
@@ -16293,7 +16293,7 @@
           '<h4 class="sol-section-title">Official PDF Solution & Question Analysis</h4>' +
           '<div class="sol-explanation-box">' +
           '<div class="sol-expl-badge">Answers & Explanations Section</div>' +
-          '<p class="sol-expl-text">' + this.escapeHTML(q.explanation).replace(/\n/g, '<br/>') + '</p>' +
+          '<p class="sol-expl-text">' + this.escapeHTML(q.explanation).split('\n').join('<br/>') + '</p>' +
           '</div>' +
           '</div>' : ''
         ) +
@@ -16689,11 +16689,34 @@
         }
       });
 
-      const currentUser = DB.getCurrentUser();
-      if (currentUser) {
-        this.showView('dashboard');
+      window.addEventListener('hashchange', () => this.handleRouting());
+      window.addEventListener('popstate', () => this.handleRouting());
+
+      this.handleRouting();
+    },
+
+    handleRouting() {
+      const user = DB.getCurrentUser();
+      const rawHash = window.location.hash.replace(/^#\/?/, '').trim().toLowerCase();
+      const rawPath = window.location.pathname.replace(/^\//, '').trim().toLowerCase();
+      const route = rawHash || rawPath || '';
+
+      if (!user) {
+        this.showView('auth', false);
+        return;
+      }
+
+      if (route.startsWith('test/')) {
+        const testId = route.replace('test/', '');
+        this.startTest(testId, true, 'timed');
+      } else if (route === 'history' || route === 'progress') {
+        this.showView('history', false);
+      } else if (route === 'solutions') {
+        this.showView('solutions', false);
+      } else if (route === 'results') {
+        this.showView('results', false);
       } else {
-        this.showView('auth');
+        this.showView('dashboard', false);
       }
     },
 
@@ -16770,11 +16793,18 @@
     },
 
     startTest(testId, resume = true, mode = 'timed') {
-      this.showView('test');
+      this.showView('test', false);
+      if (window.location.hash !== '#test/' + testId) {
+        try {
+          history.pushState(null, '', '#test/' + testId);
+        } catch (e) {
+          window.location.hash = '#test/' + testId;
+        }
+      }
       TestEngine.start(testId, resume, mode);
     },
 
-    showView(viewName) {
+    showView(viewName, updateHash = true) {
       this.currentView = viewName;
 
       const views = [
@@ -16816,6 +16846,17 @@
         History.renderDashboard();
       } else if (viewName === 'history') {
         History.renderProgressPage();
+      }
+
+      if (updateHash && viewName !== 'auth') {
+        const targetHash = viewName === 'history' ? '#progress' : '#' + viewName;
+        if (window.location.hash !== targetHash) {
+          try {
+            history.pushState(null, '', targetHash);
+          } catch (e) {
+            window.location.hash = targetHash;
+          }
+        }
       }
 
       window.scrollTo({ top: 0, behavior: 'instant' });
