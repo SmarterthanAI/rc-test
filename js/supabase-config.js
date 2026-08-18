@@ -6,44 +6,60 @@
 (function () {
   'use strict';
 
-  // Default configuration (can be overridden via window.SUPABASE_CONFIG or Vercel ENV injection)
-  const defaultConfig = {
-    url: window.SUPABASE_URL || 'https://rc99-assessment.supabase.co',
-    anonKey: window.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjOTkiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTY4MDAwMDAwMCwiZXhwIjoxOTk1NTU1NTU1fQ.dummyKey'
-  };
+  // =========================================================================
+  // SUPABASE CREDENTIALS CONFIGURATION (Browser Vanilla JS)
+  // Paste your Supabase Project URL & Anon Key below (or configure via window):
+  // =========================================================================
+  const CONFIGURED_URL = window.SUPABASE_URL || '';
+  const CONFIGURED_ANON_KEY = window.SUPABASE_ANON_KEY || '';
 
-  // Check localStorage for custom override if user provided their credentials
+  // Check localStorage for custom override if user set credentials via UI
   let userConfig = null;
   try {
     const stored = localStorage.getItem('rc99_supabase_config');
     if (stored) userConfig = JSON.parse(stored);
   } catch (e) {}
 
-  const activeConfig = userConfig || defaultConfig;
+  const activeUrl = (userConfig && userConfig.url) || CONFIGURED_URL;
+  const activeAnonKey = (userConfig && userConfig.anonKey) || CONFIGURED_ANON_KEY;
 
-  // Initialize Supabase Client if library is available
+  // Validation function: checks if a valid real Supabase project is configured
+  window.isSupabaseActive = function () {
+    return !!(
+      window.supabaseClient &&
+      activeUrl &&
+      activeUrl.startsWith('https://') &&
+      activeUrl.includes('.supabase.co') &&
+      !activeUrl.includes('rc99-assessment') &&
+      activeAnonKey &&
+      activeAnonKey.length > 30 &&
+      !activeAnonKey.includes('dummy')
+    );
+  };
+
+  // Initialize Supabase Client if library is available and credentials are set
   if (window.supabase && typeof window.supabase.createClient === 'function') {
-    try {
-      window.supabaseClient = window.supabase.createClient(activeConfig.url, activeConfig.anonKey, {
-        auth: {
-          persistSession: true,
-          autoRefreshToken: true,
-          detectSessionInUrl: true,
-          storage: window.localStorage
-        }
-      });
-      console.log('✓ Supabase Client initialized successfully.');
-    } catch (err) {
-      console.warn('Supabase initialization fallback:', err);
+    if (activeUrl && activeAnonKey && !activeUrl.includes('rc99-assessment') && !activeAnonKey.includes('dummy')) {
+      try {
+        window.supabaseClient = window.supabase.createClient(activeUrl, activeAnonKey, {
+          auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true,
+            storage: window.localStorage
+          }
+        });
+        console.log('✓ Supabase Client initialized successfully.');
+      } catch (err) {
+        console.warn('Supabase initialization warning:', err);
+        window.supabaseClient = null;
+      }
+    } else {
       window.supabaseClient = null;
+      console.log('ℹ Supabase is in local standalone mode. Set SUPABASE_URL and SUPABASE_ANON_KEY to enable cloud sync.');
     }
   } else {
     window.supabaseClient = null;
   }
-
-  // Global helper to check if Supabase is active
-  window.isSupabaseActive = function () {
-    return !!(window.supabaseClient && activeConfig.url && !activeConfig.url.includes('dummy'));
-  };
 
 })();

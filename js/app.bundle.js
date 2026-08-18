@@ -14818,27 +14818,34 @@
 
       // If Supabase is connected, register with Supabase Auth
       if (window.isSupabaseActive && window.isSupabaseActive()) {
-        const { data, error } = await window.supabaseClient.auth.signUp({
-          email: trimmedEmail,
-          password: password,
-          options: {
-            data: { name: name.trim() }
+        try {
+          const { data, error } = await window.supabaseClient.auth.signUp({
+            email: trimmedEmail,
+            password: password,
+            options: {
+              data: { name: name.trim() }
+            }
+          });
+
+          if (error) throw new Error(error.message);
+
+          const sbUser = data.user;
+          const newUser = {
+            id: sbUser.id,
+            name: name.trim(),
+            email: trimmedEmail,
+            role: 'student',
+            createdAt: sbUser.created_at || new Date().toISOString()
+          };
+
+          this.setCurrentUser(newUser);
+          return newUser;
+        } catch (sbErr) {
+          console.warn('Supabase Auth error, evaluating fallback:', sbErr);
+          if (sbErr.message && !sbErr.message.includes('Failed to fetch') && !sbErr.message.includes('NetworkError') && !sbErr.message.includes('Network request failed')) {
+            throw sbErr;
           }
-        });
-
-        if (error) throw new Error(error.message);
-
-        const sbUser = data.user;
-        const newUser = {
-          id: sbUser.id,
-          name: name.trim(),
-          email: trimmedEmail,
-          role: 'student',
-          createdAt: sbUser.created_at || new Date().toISOString()
-        };
-
-        this.setCurrentUser(newUser);
-        return newUser;
+        }
       }
 
       // Fallback local registration
@@ -14867,24 +14874,31 @@
 
       // If Supabase is connected, authenticate with Supabase Auth
       if (window.isSupabaseActive && window.isSupabaseActive()) {
-        const { data, error } = await window.supabaseClient.auth.signInWithPassword({
-          email: trimmedEmail,
-          password: password
-        });
+        try {
+          const { data, error } = await window.supabaseClient.auth.signInWithPassword({
+            email: trimmedEmail,
+            password: password
+          });
 
-        if (error) throw new Error(error.message);
+          if (error) throw new Error(error.message);
 
-        const sbUser = data.user;
-        const loggedUser = {
-          id: sbUser.id,
-          name: (sbUser.user_metadata && sbUser.user_metadata.name) || trimmedEmail.split('@')[0],
-          email: trimmedEmail,
-          role: 'student',
-          createdAt: sbUser.created_at || new Date().toISOString()
-        };
+          const sbUser = data.user;
+          const loggedUser = {
+            id: sbUser.id,
+            name: (sbUser.user_metadata && sbUser.user_metadata.name) || trimmedEmail.split('@')[0],
+            email: trimmedEmail,
+            role: 'student',
+            createdAt: sbUser.created_at || new Date().toISOString()
+          };
 
-        this.setCurrentUser(loggedUser);
-        return loggedUser;
+          this.setCurrentUser(loggedUser);
+          return loggedUser;
+        } catch (sbErr) {
+          console.warn('Supabase Auth error, evaluating fallback:', sbErr);
+          if (sbErr.message && !sbErr.message.includes('Failed to fetch') && !sbErr.message.includes('NetworkError') && !sbErr.message.includes('Network request failed')) {
+            throw sbErr;
+          }
+        }
       }
 
       // Fallback local login
