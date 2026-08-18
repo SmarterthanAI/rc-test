@@ -3,8 +3,8 @@ set -e
 
 echo "--- RC-99 Vercel Production Build Starting ---"
 
-SUPA_URL="${SUPABASE_URL:-${NEXT_PUBLIC_SUPABASE_URL:-}}"
-SUPA_KEY="${SUPABASE_ANON_KEY:-${NEXT_PUBLIC_SUPABASE_ANON_KEY:-}}"
+SUPA_URL="${SUPABASE_URL:-${NEXT_PUBLIC_SUPABASE_URL:-https://zfprqrpeoyzdlvxayjdv.supabase.co}}"
+SUPA_KEY="${SUPABASE_ANON_KEY:-${NEXT_PUBLIC_SUPABASE_ANON_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcHJxcnBlb3l6ZGx2eGF5amR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5Nzc2NjYsImV4cCI6MjEwMjU1MzY2Nn0.SgS4BvlvqIGnpeYE3nm6H4V3wd13JcnDaoJSTPgjJsg}}"
 
 echo "Supabase URL in build: $SUPA_URL"
 
@@ -43,24 +43,19 @@ cat <<EOF > js/supabase-config.js
   };
 
   if (window.supabase && typeof window.supabase.createClient === 'function') {
-    if (activeUrl && activeAnonKey && activeUrl.startsWith('https://') && activeAnonKey.length > 30) {
-      try {
-        window.supabaseClient = window.supabase.createClient(activeUrl, activeAnonKey, {
-          auth: {
-            persistSession: true,
-            autoRefreshToken: true,
-            detectSessionInUrl: true,
-            storage: window.localStorage
-          }
-        });
-        console.log('✓ Supabase Client active on: ' + activeUrl);
-      } catch (err) {
-        console.error('Supabase initialization failed:', err);
-        window.supabaseClient = null;
-      }
-    } else {
+    try {
+      window.supabaseClient = window.supabase.createClient(activeUrl, activeAnonKey, {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true,
+          storage: window.localStorage
+        }
+      });
+      console.log('✓ Supabase Client active on: ' + activeUrl);
+    } catch (err) {
+      console.error('Supabase initialization failed:', err);
       window.supabaseClient = null;
-      console.log('ℹ Supabase is unconfigured. Set SUPABASE_URL and SUPABASE_ANON_KEY in Vercel to activate cloud authentication.');
     }
   } else {
     window.supabaseClient = null;

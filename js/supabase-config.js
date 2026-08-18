@@ -6,8 +6,8 @@
 (function () {
   'use strict';
 
-  const BUILD_SUPABASE_URL = "";
-  const BUILD_SUPABASE_ANON_KEY = "";
+  const BUILD_SUPABASE_URL = "https://zfprqrpeoyzdlvxayjdv.supabase.co";
+  const BUILD_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcHJxcnBlb3l6ZGx2eGF5amR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5Nzc2NjYsImV4cCI6MjEwMjU1MzY2Nn0.SgS4BvlvqIGnpeYE3nm6H4V3wd13JcnDaoJSTPgjJsg";
 
   let userConfig = null;
   try {
@@ -30,24 +30,19 @@
   };
 
   if (window.supabase && typeof window.supabase.createClient === 'function') {
-    if (activeUrl && activeAnonKey && activeUrl.startsWith('https://') && activeAnonKey.length > 30) {
-      try {
-        window.supabaseClient = window.supabase.createClient(activeUrl, activeAnonKey, {
-          auth: {
-            persistSession: true,
-            autoRefreshToken: true,
-            detectSessionInUrl: true,
-            storage: window.localStorage
-          }
-        });
-        console.log('✓ Supabase Client active on: ' + activeUrl);
-      } catch (err) {
-        console.error('Supabase initialization failed:', err);
-        window.supabaseClient = null;
-      }
-    } else {
+    try {
+      window.supabaseClient = window.supabase.createClient(activeUrl, activeAnonKey, {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true,
+          storage: window.localStorage
+        }
+      });
+      console.log('✓ Supabase Client active on: ' + activeUrl);
+    } catch (err) {
+      console.error('Supabase initialization failed:', err);
       window.supabaseClient = null;
-      console.log('ℹ Supabase is unconfigured. Set SUPABASE_URL and SUPABASE_ANON_KEY in Vercel to activate cloud authentication.');
     }
   } else {
     window.supabaseClient = null;
