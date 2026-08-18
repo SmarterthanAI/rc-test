@@ -148,6 +148,13 @@
               Continue as Guest Explorer →
             </button>
 
+            <div class="cloud-sync-status-row">
+              <span id="cloud-sync-badge" class="cloud-badge cloud-badge-offline" title="Click to view or connect Supabase Cloud Database" onclick="if(window.openSupabaseConfigModal) window.openSupabaseConfigModal();">
+                <span class="status-dot"></span>
+                <span id="cloud-sync-label">Cloud Sync: Local Standalone (Click to Connect)</span>
+              </span>
+            </div>
+
             <!-- Signup Form -->
             <form id="signup-form" class="auth-form hidden">
               <div id="signup-error" class="alert-error hidden" role="alert"></div>
@@ -997,9 +1004,52 @@
     </div>
   </div>
 
+  <!-- Modal: Supabase Cloud Sync Configuration -->
+  <div id="modal-supabase-config" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-supabase-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h3 id="modal-supabase-title" class="modal-title">⚙️ Connect Supabase Cloud Database</h3>
+          <p class="modal-subtitle">Paste your Supabase credentials to enable permanent cross-device account logins.</p>
+        </div>
+        <button type="button" id="btn-modal-close-supabase" class="btn-close-modal" aria-label="Close modal">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div id="supabase-config-alert" class="alert-info">
+          ℹ️ Your <strong>anon public key</strong> is safe to use in browser clients and is protected by Supabase Row Level Security (RLS).
+        </div>
+
+        <div class="form-group">
+          <label for="cfg-supabase-url">Supabase Project URL</label>
+          <input type="url" id="cfg-supabase-url" class="form-input" placeholder="https://yourprojectid.supabase.co" />
+        </div>
+
+        <div class="form-group">
+          <label for="cfg-supabase-anon-key">Supabase Publishable (Anon) Key</label>
+          <textarea id="cfg-supabase-anon-key" class="form-textarea" rows="3" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."></textarea>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" id="btn-modal-clear-supabase" class="btn btn-ghost btn-sm">
+          Reset to Local
+        </button>
+        <div style="display:flex; gap:8px;">
+          <button type="button" id="btn-modal-cancel-supabase" class="btn btn-secondary">
+            Cancel
+          </button>
+          <button type="button" id="btn-modal-save-supabase" class="btn btn-primary">
+            Save & Connect
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
-  <script src="js/app.bundle.js?v=supabase_v1"></script>
+  <script src="js/app.bundle.js?v=supabase_v2"></script>
 </body>
 </html>

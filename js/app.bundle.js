@@ -15277,6 +15277,8 @@
     },
 
     bindEvents() {
+      this.bindSupabaseConfigModal();
+
       const loginTabBtn = document.getElementById('auth-tab-login');
       const signupTabBtn = document.getElementById('auth-tab-signup');
       const loginForm = document.getElementById('login-form');
@@ -15481,6 +15483,85 @@
       } else {
         if (userNav) userNav.classList.add('hidden');
         if (authNav) authNav.classList.remove('hidden');
+      }
+
+      this.updateCloudSyncBadge();
+    },
+
+    updateCloudSyncBadge() {
+      const badge = document.getElementById('cloud-sync-badge');
+      const label = document.getElementById('cloud-sync-label');
+      if (!badge || !label) return;
+
+      const isActive = window.isSupabaseActive && window.isSupabaseActive();
+      if (isActive) {
+        badge.className = 'cloud-badge cloud-badge-online';
+        label.textContent = 'Cloud Sync: Connected (Supabase Cloud)';
+      } else {
+        badge.className = 'cloud-badge cloud-badge-offline';
+        label.textContent = 'Cloud Sync: Local Standalone (Click to Connect)';
+      }
+    },
+
+    bindSupabaseConfigModal() {
+      const modal = document.getElementById('modal-supabase-config');
+      const closeBtn = document.getElementById('btn-modal-close-supabase');
+      const cancelBtn = document.getElementById('btn-modal-cancel-supabase');
+      const saveBtn = document.getElementById('btn-modal-save-supabase');
+      const clearBtn = document.getElementById('btn-modal-clear-supabase');
+      const urlInput = document.getElementById('cfg-supabase-url');
+      const keyInput = document.getElementById('cfg-supabase-anon-key');
+
+      window.openSupabaseConfigModal = () => {
+        if (!modal) return;
+        let storedConfig = {};
+        try {
+          storedConfig = JSON.parse(localStorage.getItem('rc99_supabase_config') || '{}');
+        } catch (e) {}
+
+        if (urlInput) urlInput.value = storedConfig.url || window.SUPABASE_URL || '';
+        if (keyInput) keyInput.value = storedConfig.anonKey || window.SUPABASE_ANON_KEY || '';
+        modal.classList.remove('hidden');
+      };
+
+      const closeModal = () => {
+        if (modal) modal.classList.add('hidden');
+      };
+
+      if (closeBtn) closeBtn.addEventListener('click', closeModal);
+      if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+      if (saveBtn) {
+        saveBtn.addEventListener('click', () => {
+          const url = (urlInput ? urlInput.value : '').trim();
+          const anonKey = (keyInput ? keyInput.value : '').trim();
+
+          if (!url || !url.startsWith('https://') || !url.includes('.supabase.co')) {
+            alert('Please enter a valid Supabase Project URL (e.g. https://xyzcompany.supabase.co)');
+            return;
+          }
+
+          if (!anonKey || anonKey.length < 20) {
+            alert('Please enter a valid Supabase Publishable (anon) API Key.');
+            return;
+          }
+
+          try {
+            localStorage.setItem('rc99_supabase_config', JSON.stringify({ url, anonKey }));
+            window.location.reload();
+          } catch (e) {
+            alert('Error saving config: ' + e.message);
+          }
+        });
+      }
+
+      if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+          if (confirm('Reset to local standalone mode?')) {
+            localStorage.removeItem('rc99_supabase_config');
+            window.location.reload();
+          }
+        });
       }
     }
   };
