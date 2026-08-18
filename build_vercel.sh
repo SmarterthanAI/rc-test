@@ -1,3 +1,16 @@
+#!/usr/bin/env bash
+set -e
+
+echo "--- RC-99 Vercel Production Build Starting ---"
+
+SUPA_URL="${SUPABASE_URL:-${NEXT_PUBLIC_SUPABASE_URL:-}}"
+SUPA_KEY="${SUPABASE_ANON_KEY:-${NEXT_PUBLIC_SUPABASE_ANON_KEY:-}}"
+
+echo "Supabase URL in build: $SUPA_URL"
+
+mkdir -p js dist/js
+
+cat <<EOF > js/supabase-config.js
 /**
  * Supabase Client Configuration for RC-99 Platform
  * Injected by Vercel Production Build.
@@ -6,8 +19,8 @@
 (function () {
   'use strict';
 
-  const BUILD_SUPABASE_URL = "";
-  const BUILD_SUPABASE_ANON_KEY = "";
+  const BUILD_SUPABASE_URL = "${SUPA_URL}";
+  const BUILD_SUPABASE_ANON_KEY = "${SUPA_KEY}";
 
   let userConfig = null;
   try {
@@ -54,3 +67,9 @@
   }
 
 })();
+EOF
+
+cp js/supabase-config.js dist/js/supabase-config.js
+
+echo "✓ Supabase configuration generated."
+echo "--- RC-99 Vercel Production Build Completed ---"

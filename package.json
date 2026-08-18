@@ -1,0 +1,17 @@
+{
+  "name": "rc-test",
+  "version": "1.0.0",
+  "description": "RC-99 Reading Comprehension Assessment Platform with Supabase Auth & Cloud Database",
+  "scripts": {
+    "build": "bash build_vercel.sh",
+    "start": "ruby server.rb"
+  },
+  "keywords": [
+    "rc99",
+    "reading-comprehension",
+    "assessment",
+    "supabase"
+  ],
+  "author": "SmarterthanAI",
+  "license": "MIT"
+}
