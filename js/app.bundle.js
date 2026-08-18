@@ -14876,10 +14876,8 @@
           this.setCurrentUser(newUser);
           return newUser;
         } catch (sbErr) {
-          console.warn('Supabase Auth error, evaluating fallback:', sbErr);
-          if (sbErr.message && !sbErr.message.includes('Failed to fetch') && !sbErr.message.includes('NetworkError') && !sbErr.message.includes('Network request failed')) {
-            throw sbErr;
-          }
+          console.warn('Supabase Auth error:', sbErr);
+          throw sbErr;
         }
       }
 
@@ -14915,7 +14913,12 @@
             password: password
           });
 
-          if (error) throw new Error(error.message);
+          if (error) {
+            if (error.message && error.message.toLowerCase().includes('email not confirmed')) {
+              throw new Error('Email not confirmed yet. Please check your email inbox for the verification link, or disable "Confirm email" in Supabase Dashboard (Authentication ➔ Providers ➔ Email ➔ Confirm email: OFF) for instant sign-ins.');
+            }
+            throw new Error(error.message);
+          }
 
           const sbUser = data.user;
           const loggedUser = {
@@ -14929,10 +14932,8 @@
           this.setCurrentUser(loggedUser);
           return loggedUser;
         } catch (sbErr) {
-          console.warn('Supabase Auth error, evaluating fallback:', sbErr);
-          if (sbErr.message && !sbErr.message.includes('Failed to fetch') && !sbErr.message.includes('NetworkError') && !sbErr.message.includes('Network request failed')) {
-            throw sbErr;
-          }
+          console.warn('Supabase Auth error:', sbErr);
+          throw sbErr;
         }
       }
 
