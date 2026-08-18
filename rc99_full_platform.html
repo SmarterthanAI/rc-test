@@ -18526,6 +18526,41 @@ html, body {
 ];
 
   // ==========================================
+  // SUPABASE CLIENT INITIALIZATION (BUNDLED)
+  // ==========================================
+  const SUPABASE_PROJECT_URL = "https://zfprqrpeoyzdlvxayjdv.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmcHJxcnBlb3l6ZGx2eGF5amR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5Nzc2NjYsImV4cCI6MjEwMjU1MzY2Nn0.SgS4BvlvqIGnpeYE3nm6H4V3wd13JcnDaoJSTPgjJsg";
+
+  let userSupabaseConfig = null;
+  try {
+    const stored = localStorage.getItem('rc99_supabase_config');
+    if (stored) userSupabaseConfig = JSON.parse(stored);
+  } catch (e) {}
+
+  const activeSupabaseUrl = (userSupabaseConfig && userSupabaseConfig.url) || SUPABASE_PROJECT_URL;
+  const activeSupabaseKey = (userSupabaseConfig && userSupabaseConfig.anonKey) || SUPABASE_ANON_KEY;
+
+  if (window.supabase && typeof window.supabase.createClient === 'function') {
+    try {
+      window.supabaseClient = window.supabase.createClient(activeSupabaseUrl, activeSupabaseKey, {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true,
+          storage: window.localStorage
+        }
+      });
+      console.log('✓ Supabase Cloud active on: ' + activeSupabaseUrl);
+    } catch (e) {
+      console.error('Supabase init error:', e);
+    }
+  }
+
+  window.isSupabaseActive = function () {
+    return !!(window.supabaseClient && activeSupabaseUrl && activeSupabaseUrl.includes('.supabase.co') && activeSupabaseKey && activeSupabaseKey.length > 30);
+  };
+
+  // ==========================================
   // STORAGE & DATABASE LAYER
   // ==========================================
   const STORAGE_KEYS = {
